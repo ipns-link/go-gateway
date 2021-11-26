@@ -1,1 +1,1 @@
-# go-ipns-link-gateway
+# go-gateway
