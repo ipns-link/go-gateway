@@ -1,0 +1,14 @@
+FROM golang:1.17-alpine as dev
+WORKDIR /work
+
+FROM golang:1.17-alpine as build
+WORKDIR /work
+COPY ./* /
+RUN go build -o app
+
+FROM alpine as runtime
+COPY --from=build /app /
+CMD ./app
+
+#docker build --target dev . -t ipns-gateway-local
+#docker run -it -v ${PWD}:/work -p 8888:8888 ipns-gateway-local sh

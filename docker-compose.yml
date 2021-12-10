@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  ipfs0:
+    container_name: ipfs0
+    image: ipfs-local
+    ports:
+      - "4001:4001" # ipfs swarm - expose if needed/wanted
+#     - "5001:5001" # ipfs api - expose if needed/wanted
+#     - "8080:8080" # ipfs gateway - expose if needed/wanted
+    environment:
+      - IPFS_PROFILE=server
+      - IPFS_PATH=/work
+    volumes:
+      - ipfs0-data:/data/ipfs
+    restart: unless-stopped
+  
+  ipns_gateway:
+    container_name: ipns_gateway
+    image: ipns-gateway-local
+    depends_on:
+      - ipfs0
+    ports:
+          - "8888:8888"
+    volumes:
+      - ${PWD}:/work
+      - ipfs0-data:/ipfs0_data
+    restart: unless-stopped
+volumes:
+  ipfs0-data:
