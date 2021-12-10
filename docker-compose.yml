@@ -8,12 +8,13 @@ services:
       - "4001:4001" # ipfs swarm - expose if needed/wanted
 #     - "5001:5001" # ipfs api - expose if needed/wanted
 #     - "8080:8080" # ipfs gateway - expose if needed/wanted
-    environment:
-      - IPFS_PROFILE=server
-      - IPFS_PATH=/work
+    # environment:
+    #   - IPFS_PROFILE=server
+    #   - IPFS_PATH=/work
     volumes:
       - ipfs0-data:/data/ipfs
-    restart: unless-stopped
+#    restart: unless-stopped
+    command: ipfs daemon --enable-namesys-pubsub --enable-gc
   
   ipns_gateway:
     container_name: ipns_gateway
@@ -25,6 +26,6 @@ services:
     volumes:
       - ${PWD}:/work
       - ipfs0-data:/ipfs0_data
-    restart: unless-stopped
+#    restart: unless-stopped
 volumes:
   ipfs0-data:
