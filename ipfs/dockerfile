@@ -1,11 +1,33 @@
-FROM alpine as ipfs-runtime
+FROM ghcr.io/linuxserver/baseimage-alpine:arm64v8-3.14 as ipfs-runtime
 
-RUN apk update \
-    && apk fetch gnupg \
-    && apk add gnupg \
-    && gpg --list-keys
+ARG VERSION=1.0.0
+LABEL build_version="${VERSION}"
+
+# environment
+ENV IPFS_PATH=/config/ipfs
+
+RUN \
+  echo "**** install runtime packages ****" && \
+  apk add --no-cache \
+    curl \
+    logrotate \
+    nginx \
+    openssl && \
+  apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+  mkdir -p /var/www/html && \
+  echo "**** fix logrotate ****" && \
+  sed -i "s#/var/log/messages {}.*# #g" /etc/logrotate.conf && \
+  sed -i 's#/usr/sbin/logrotate /etc/logrotate.conf#/usr/sbin/logrotate /etc/logrotate.conf -s /config/log/logrotate.status#g' \
+    /etc/periodic/daily/logrotate && \
+  echo "**** cleanup ****" && \
+  rm -rf \
+    /tmp/*
+
+# copy files
+COPY root/ /
 
 WORKDIR /work
+# [TODO] : need to download the go-ipfs from repo. not use the local
 COPY ./ipfs /bin
 COPY ./ipfs_init /work
 RUN chmod 0755 /work/ipfs_init
@@ -21,20 +43,23 @@ EXPOSE 8080
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
 EXPOSE 8081
 
-ENV version=1.0.7
-ENV version=1.0.7
-ENV IPFS_PATH="/work/.ipfs"
-ENV cache_dir="${IPFS_PATH}/.cache"
-ENV GNUPGHOME="${IPFS_PATH}/.gpg"
-ENV sockets="${IPFS_PATH}/.sockets"
-ENV pid_file="${IPFS_PATH}/.pid"
-ENV ipfs_subd_gw="${IPFS_SUBD_GW:-https://cf-ipfs.com}" 
-ENV ipfs_path_gw="${IPFS_PATH_GW:-https://ipfs.io}"
-ENV blacklist_file="${IPFS_PATH}/blacklist.txt"
+EXPOSE 80 443
 
-RUN ./ipfs_init
+VOLUME ["/config"]
+# ENV version=1.0.7
+# ENV version=1.0.7
+# ENV IPFS_PATH="/work/.ipfs"
+# ENV cache_dir="${IPFS_PATH}/.cache"
+# ENV GNUPGHOME="${IPFS_PATH}/.gpg"
+# ENV sockets="${IPFS_PATH}/.sockets"
+# ENV pid_file="${IPFS_PATH}/.pid"
+# ENV ipfs_subd_gw="${IPFS_SUBD_GW:-https://cf-ipfs.com}" 
+# ENV ipfs_path_gw="${IPFS_PATH_GW:-https://ipfs.io}"
+# ENV blacklist_file="${IPFS_PATH}/blacklist.txt"
+# ENV webhost_name="ipns.gxnt.in"
+# RUN ./ipfs_init
 
 #docker build --target ipfs-runtime . -t ipfs-local
 #docker run -it -p 4001:4001 -p 5001:5001 -p 8088:8080 -p 8089:8081 ipfs-local sh
-#docker exec "container name" ipfs daemon --enable-namesys-pubsub --enable-gc
-#docker exec "container name" ipfs swarm peers
+#docker exec $CONTAINERNAME ipfs daemon --enable-namesys-pubsub --enable-gc
+#docker exec $CONTAINERNAME ipfs swarm peers

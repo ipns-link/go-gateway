@@ -47,8 +47,8 @@ ipfs config --json Gateway.PublicGateways '{
     }'
 ipfs config --json Gateway.HTTPHeaders.Access-Control-Allow-Methods '["GET", "PUT", "POST", "HEAD", "DELETE", "PATCH", "OPTIONS"]'
 mkdir -p "${sockets}" "${cache_dir}"
-ipfs config Addresses.API "/unix/${sockets}/api"
-ipfs config Addresses.Gateway "/unix/${sockets}/gateway"
+# ipfs config Addresses.API "/unix/${sockets}/api"
+# ipfs config Addresses.Gateway "/unix/${sockets}/gateway"
 rm -rf "${GNUPGHOME}" ; mkdir -p "${GNUPGHOME}"
 gpg --batch -q --gen-key << EOF
 %no-protection
@@ -56,7 +56,7 @@ Key-Type: EDDSA
   Key-Curve: ed25519
 Subkey-Type: ECDH
   Subkey-Curve: cv25519
-Name-Real: ipfs.gxnt.in
+Name-Real: "${webhost_name}"
 Expire-Date: 0
 EOF
 #(($? == 0)) && gpg --export -a > pubkey || return 1
@@ -64,7 +64,7 @@ gpg --export -a > pubkey
 ipfs config App "ipns-link-gatewayV${version}"
 #fi
 ipfs config profile apply randomports; rm -f "${IPFS_PATH}/config-pre-"*
-(ipfs swarm peers || rm -f "${sockets}"/*) # Otherwise API and Gateway won't bind to existing UNIX socket
+#(ipfs swarm peers || rm -f "${sockets}"/*) # Otherwise API and Gateway won't bind to existing UNIX socket
 # TODO: Handle SIGHUP on `main` exit better.
 # Without the following `setsid`, `ipfs daemon` surprisingly exits with SIGHUP, even with `nohup`, when `main` exits
 # The `setsid`, thanks to its own subshell, doesn't fork and `exec`s into ipfs daemon. Hence they have same pid.
