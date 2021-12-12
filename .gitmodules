@@ -1,0 +1,3 @@
+[submodule "docker-ipfs"]
+	path = docker-ipfs
+	url = https://github.com/ipns-link/docker-ipfs
