@@ -1,3 +1,4 @@
+# author - S@M
 version: '3.4'
 
 services:
@@ -11,34 +12,18 @@ services:
     volumes:
       - ipfs0-data:/config
     ports:
-      - 80:80
+#      - 80:80
       - 4001:4001
       - 5001:5001
       - 8080:8080
-      - 443:443 #optional
+#      - 443:443 #optional
     restart: unless-stopped
-
-  ipfs0:
-    container_name: ipfs0
-    image: ipfs-local
-    ports:
-      - "4001:4001"
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:8081:8081"
-      - "127.0.0.1:5001:5001"
-    # environment:
-    #   - IPFS_PROFILE=server
-    #   - IPFS_PATH=/work
-    volumes:
-      - ipfs0-data:/data/ipfs
-#    restart: unless-stopped
-#    command: ipfs daemon --enable-namesys-pubsub --enable-gc
-  
+      
   ipns_gateway:
     container_name: ipns_gateway
     image: ipns-gateway-local
     depends_on:
-      - ipfs0
+      - ipfs
     ports:
           - "8888:8888"
     volumes:
