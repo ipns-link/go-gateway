@@ -9,7 +9,7 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - lscr-data:/config
+      - ipfs0-data:/config
     ports:
       - 80:80
       - 4001:4001
@@ -48,4 +48,3 @@ services:
 #    command: sh
 volumes:
   ipfs0-data:
-  lscr-data:
